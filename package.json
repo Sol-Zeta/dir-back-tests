@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/dgelez86/dir-back-tests#readme",
   "dependencies": {
+    "firebase": "^8.2.10",
     "moment": "^2.29.1"
   }
 }
