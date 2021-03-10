@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dgelez86/dir-back-tests/issues"
   },
-  "homepage": "https://github.com/dgelez86/dir-back-tests#readme"
+  "homepage": "https://github.com/dgelez86/dir-back-tests#readme",
+  "dependencies": {
+    "moment": "^2.29.1"
+  }
 }
