@@ -1,5 +1,8 @@
 const start = () => {
 
+    console.log(document.querySelector("#setWordButton"))
+    console.log(document.querySelector("#getWordsButton"))
+
     document
         .querySelector("#setWordButton")
         .addEventListener("click", sendWord)
@@ -8,48 +11,68 @@ const start = () => {
         .querySelector("#getWordsButton")
         .addEventListener("click", displayWords)
 
+    document
+        .querySelector("#text")
+        .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendWord()
+        })
+
 }
 
 const sendWord = () => {
 
     console.log("send")
 
+    let input = document.querySelector("#text")
+
     let post = {
 
-        method: "post",
+        method: "POST",
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            word: document.querySelector("#setWordButton").value
+            word: input.value
         })
 
     }
 
-    fetch("localhost:8080/setWord", post)
+    input.value = ""
+
+    fetch("/setWord", post)
         .then(response => response.json())
 
 }
 
-const displayWords = (arrayWords) => {
+const displayWords = () => {
 
-    fetch("localhost:8080/getWords")
-        .then(response => response.json())
-        .then(data => (data))
+    deletePrevious()
 
     let display = document.querySelector(".display")
 
-    arrayWords.map(word => {
+    fetch("/getWords")
+        .then(response => response.json())
+        .then(data => {
 
-        let div = document.createElement("div")
-        let text = document.createTextNode(word)
-        div.appendChild(text)
-        display.appendChild(div)
+            data.map(word => {
 
-    })
+                let div = document.createElement("div")
+                let text = document.createTextNode(word)
+                div.appendChild(text)
+                display.appendChild(div)
+
+            }) 
+
+        })
+
+}
+
+const deletePrevious = () => {
+
+    let nodes = [...document.querySelectorAll(".display > *")]
+    if (nodes) nodes.map(el => el.remove())
 
 }
 
 
-document.addEventListener("load", start)
+window.addEventListener("load", start)
