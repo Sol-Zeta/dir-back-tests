@@ -1,5 +1,6 @@
 // Node modules
 const express = require('express')
+const firebase = require('firebase')
 
 const server = express()
 const port = 8080
@@ -16,10 +17,16 @@ server.get("/getWords", (req, res) => res.send(arrayWords))
 server.post("/setWord", (req, res) => {
 
     arrayWords.push(req.body.word)
-    console.log(arrayWords)
+    saveOnFirebase()
     res.send()
 
 })
+
+const saveOnFirebase = () => {
+
+    
+
+}
 
 // Start server
 server.listen(port, () => console.log(`Server started on port ${port}`))
