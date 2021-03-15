@@ -1,0 +1,91 @@
+@font-face {
+    font-family: "PottaOne";
+    src: url("../assets/fonts/Potta_One/PottaOne-Regular.ttf");
+}
+
+body {
+    padding: 5rem;
+}
+
+.wrapper,
+.display {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper {
+    height: 200px;
+    background-color: rgba(200, 200, 200, 0.5);
+}
+
+.display {
+    margin-top: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wordWrapper {
+    width: 80%;
+    margin: 0.5rem 0rem;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.word {
+    width: 30%;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.taskButton {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border: 2px solid black;
+}
+
+.message {
+    height: 400px;
+    padding: 3rem;
+    text-align: center;
+    background-color: bisque;
+    position: absolute;
+    top: 150px;
+    left: 100px;
+    z-index: 1;
+}
+
+#input {
+    width: 30%;
+    margin: 0rem 2rem;
+    padding: 1rem;
+}
+
+#setWordButton,
+#getWordsButton {
+    margin: 0rem 2rem;
+    padding: 1rem 2rem;
+    color: whitesmoke;
+    background-color: rgba(10, 10, 10, 0.7);
+    border: 2px solid black;
+    transition: transform 0,1s;
+}
+
+#setWordButton:hover,
+#getWordsButton:hover,
+.updateWordButton:hover,
+.deleteWordButton:hover {
+    color: red;
+    background-color: rgba(10, 10, 10, 0.7);
+    border: 2px solid red;
+}
+
+#setWordButton:active,
+#getWordsButton:active,
+.updateWordButton:active,
+.deleteWordButton:active {
+    transform: scale(0.95);
+}
