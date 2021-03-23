@@ -7,7 +7,13 @@ const UserSchema = mongoose.Schema({
         required: true,
         unique: true
     },
-    pass: String
+    pass: {
+        type: String,
+        required: true
+    },
+    secret: {
+        type: String
+    }
 })
 
-module.exports = mongoose.model('userModel', UserSchema)
+module.exports = mongoose.model('users', UserSchema)
