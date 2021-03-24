@@ -17,7 +17,8 @@ const Users = require("./src/models/signUp")
 // -------------------------------------------------------------------------------
 
 const SERVER_URI = `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`
-const MONGO_URI = `${process.env.DB_PROTOCOL}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+// const MONGO_URI = `${process.env.DB_PROTOCOL}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+const MONGO_URI = `${process.env.DB_PROTOCOL}://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_NAME}`
 const app = express(SERVER_URI)
 const mongoOptions = {
     useNewUrlParser: true, 
@@ -42,21 +43,27 @@ app.use(express.json())
 // Database
 // -------------------------------------------------------------------------------
 
-const connectToMongo = () => {
+const connectToMongo = (...params) => {
 
-    mongoose
-        .connect(MONGO_URI, mongoOptions)
-        .then(console.log("connected to database"))
-        .catch(err => console.log(`database connection error -> ${err}`))
+    return new Promise((resolve, reject) => {
+
+        mongoose
+            .connect(MONGO_URI, mongoOptions)
+        resolve(params)
+
+    })
 
 }
 
 const closeMongo = () => {
 
-    mongoose.connection
-        .close()
-        .then(console.log("closed"))
-        .catch(err => console.log(`database close error -> ${err}`))
+    return new Promise((resolve, reject) => {
+
+        mongoose.connection
+            .close()
+        resolve()
+
+    })
 
 }
 
@@ -68,12 +75,10 @@ const closeMongo = () => {
 
 app.post("/signup", async (req, res) => {
 
-    let token
     let result = await createUser(req.body.email, req.body.pass)
     if (result === "user created successfully") 
-        token = await createJWT(req.body.email, req.body.pass)
-
-    res.send(JSON.stringify({result: result, jwt: token}))
+        res.redirect("/login")
+    res.send(JSON.stringify({result: result}))
 
 })
 
@@ -81,9 +86,8 @@ app.post("/login", async (req, res) => {
 
     let token
     let result = await loginUser(req.body.email, req.body.pass)
-    await console.log(result)
     if (result) 
-        token = await createJWT(req.body.email, req.body.pass)
+        token = await createJWT(req.body.email)
 
     res.send(JSON.stringify({result: result, jwt: token}))
 
@@ -102,6 +106,12 @@ app.get("/profile", async (req, res) => {
 
 })
 
+app.get("/logout", (req, res) => {
+
+    console.log("logout")
+
+})
+
 
 // -------------------------------------------------------------------------------
 // Logic
@@ -112,12 +122,20 @@ const createUser = async (email, pass) => {
 
     let dbResponse
     const newUser = new Users({email: email, pass: md5(pass), secret: ""}) 
-    await connectToMongo()
-    await newUser
-        .save()
-        .then(response => dbResponse = response)
-        .catch(response => dbResponse = response)
-    closeMongo()
+
+    await connectToMongo(newUser)
+        .then(async (params) => {
+            let newUser = params[0]
+            await newUser
+                .save()
+                .then(response => dbResponse = response)
+                .catch(response => dbResponse = response)
+        })
+        .catch(err => console.log(`database find error -> ${err}`))
+
+    await closeMongo()
+        .then(() => console.log("database closed"))
+        .catch(err => console.log(`database close error -> ${err}`))
 
     return result = dbResponse.code === 11000 
         ? "user already exists"
@@ -128,9 +146,23 @@ const createUser = async (email, pass) => {
 // Check if login-user pass is in database
 const loginUser = async (email, pass) => {
 
-    await connectToMongo()
-    let dbResponse = await Users.find({email: email})
-    closeMongo()
+    let dbResponse
+    await connectToMongo(email)
+        .then(async (params) => {
+            let email = params[0]
+            await Users
+                .find({email: email})
+                .then(response => {
+                    dbResponse = response
+                    console.log("user found in database!!")
+                })
+        })
+        .catch(err => console.log(`database find error -> ${err}`))
+
+    await closeMongo()
+        .then(() => console.log("database closed"))
+        .catch(err => console.log(`database close error -> ${err}`))
+    
     return result = md5(pass) === dbResponse[0].pass
         ? true
         : false
@@ -141,10 +173,20 @@ const loginUser = async (email, pass) => {
 const createJWT = async email => {
 
     let secret = md5(Math.random(1, Date.now))
-    // await connectToMongo()
-    // await Users
-    //      .updateOne({email: email}, {secret: secret})
-    // closeMongo()
+    await connectToMongo(email)
+        .then(async params => {
+            let email = params[0]
+            await Users
+                .updateOne({email: email}, {$set: {secret: secret}})
+                .then(() => console.log("updated"))
+                .catch(err => console.log(`database update error -> ${err}`))
+        })
+        .catch(err => console.log(`database connection error -> ${err}`))
+
+    await closeMongo()
+        .then(() => console.log("database closed"))
+        .catch(err => console.log(`database close error -> ${err}`))
+
     return token = jwt.sign({email: email}, secret)
 
 }

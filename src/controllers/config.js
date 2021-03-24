@@ -12,7 +12,8 @@ require('dotenv').config()
 // -------------------------------------------------------------------------------
 
 const SERVER_URI = `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`
-const MONGO_URI = `${process.env.DB_PROTOCOL}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+// const MONGO_URI = `${process.env.DB_PROTOCOL}://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+const MONGO_URI = `${process.env.DB_PROTOCOL}://${DB_USER}:${DB_PASS}@${process.env.DB_HOST}/${process.env.DB_NAME}`
 const app = express(SERVER_URI)
 const mongoOptions = {
     useNewUrlParser: true, 
